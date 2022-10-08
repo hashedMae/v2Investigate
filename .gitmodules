@@ -4,3 +4,6 @@
 [submodule "lib/ubiquity-dollar"]
 	path = lib/ubiquity-dollar
 	url = https://github.com/ubiquity/ubiquity-dollar
+[submodule "lib/openzeppelin-contracts"]
+	path = lib/openzeppelin-contracts
+	url = https://github.com/openzeppelin/openzeppelin-contracts
