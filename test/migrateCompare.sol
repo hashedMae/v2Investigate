@@ -115,4 +115,49 @@ contract V1State is LiveTestHelper {
         log_array(sharesByIDV1);
         log_array(sharesByIDV2);
     }
+
+    function testMigrateVsDeposit() public {
+        address migrateUser = users[0];
+        uint256 migrateAmount = lpAmounts_[0];
+        uint256 lockup = lockups[0];
+        address depositUser = address(0x19191919);
+        
+        
+        deal(address(metapool), migrateUser, migrateAmount);
+        deal(address(metapool), depositUser, migrateAmount);
+
+        vm.startPrank(migrateUser);
+        metapool.approve(address(bondingV1), migrateAmount);
+        bondingV1.deposit(migrateAmount, lockup);
+        bondingShareV1.setApprovalForAll(address(bondingV1), true);
+        vm.stopPrank();
+
+        switchV2();
+        uint256 dust = metapool.balanceOf(address(bondingV1));
+        vm.prank(admin);
+        bondingV1.sendDust(address(bondingV2), address(metapool), dust);
+
+        vm.prank(migrateUser);
+        uint256 migrateID = bondingV2.migrate();
+
+        vm.startPrank(depositUser);
+        metapool.approve(address(bondingV2), migrateAmount);
+        uint256 depositID = bondingV2.deposit(migrateAmount, lockup);
+        vm.stopPrank();
+
+        vm.roll(block.number+1000);
+        
+        vm.prank(migrateUser);
+        uint256 migrateRewards = chefV2.getRewards(migrateID);
+
+        vm.prank(depositUser);
+        uint256 depositRewards = chefV2.getRewards(depositID);
+
+        emit log_uint(migrateRewards);
+        emit log_uint(depositRewards);
+
+        assertEq(migrateRewards, uGov.balanceOf(migrateUser));
+
+        assertEq(depositRewards, uGov.balanceOf(depositUser));
+    }
 }

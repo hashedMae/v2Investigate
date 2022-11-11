@@ -331,6 +331,7 @@ contract LiveTestHelper is Test, Constants {
         manager.grantRole(manager.UBQ_MINTER_ROLE(), address(chefV2));
         manager.grantRole(manager.UBQ_TOKEN_MANAGER_ROLE(), admin);
         manager.grantRole(manager.UBQ_TOKEN_MANAGER_ROLE(), address(manager));
+        manager.grantRole(manager.BONDING_MANAGER_ROLE(), admin);
         manager.setBondingContractAddress(address(bondingV2));
         manager.setBondingShareAddress(address(bondingShareV2));
         chefV2.setUGOVPerBlock(10e18);
